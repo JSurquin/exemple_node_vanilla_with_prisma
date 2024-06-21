@@ -1,0 +1,56 @@
+// Ce fichier définit le schéma de votre base de données avec Prisma.
+// Pour en savoir plus sur le fonctionnement de ce fichier, consultez la documentation : https://pris.ly/d/prisma-schema
+
+// Configuration du générateur de client Prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Configuration de la source de données pour la base de données
+datasource db {
+  provider = "mysql" // Type de base de données utilisée
+  url      = env("DATABASE_URL") // URL de connexion à la base de données, définie dans le fichier .env
+}
+
+// Modèle pour les utilisateurs
+model user {
+  id            Int           @id @default(autoincrement()) // Identifiant unique auto-incrémenté
+  email         String        @unique // Email unique de l'utilisateur
+  name          String? // Nom de l'utilisateur (facultatif)
+  password      String // Mot de passe de l'utilisateur
+  createdAt     DateTime      @default(now()) // Date de création de l'utilisateur
+  updatedAt     DateTime      @updatedAt // Date de dernière mise à jour de l'utilisateur
+  transporterId Int? // Identifiant du transporteur associé (facultatif)
+  transporter   transporter[] // Relation avec le modèle transporter
+  orders        orders[] // Relation avec le modèle orders
+}
+
+// Modèle pour les transporteurs
+model transporter {
+  id        Int      @id @default(autoincrement()) // Identifiant unique auto-incrémenté
+  name      String // Nom du transporteur
+  userId    Int // Identifiant de l'utilisateur associé
+  user      user     @relation(fields: [userId], references: [id]) // Relation avec le modèle user
+  orders    orders[] // Relation avec le modèle orders
+}
+
+// Modèle pour les commandes
+model orders {
+  id            Int         @id @default(autoincrement()) // Identifiant unique auto-incrémenté
+  name          String // Nom de la commande
+  email         String // Email associée à la commande
+  phone         String? // Numéro de téléphone associé (facultatif)
+  address       String? // Adresse associée (facultatif)
+  city          String? // Ville associée (facultatif)
+  state         String? // État associé (facultatif)
+  zip           String? // Code postal associé (facultatif)
+  country       String? // Pays associé (facultatif)
+  createdAt     DateTime    @default(now()) // Date de création de la commande
+  updatedAt     DateTime    @updatedAt // Date de dernière mise à jour de la commande
+  userId        Int // Identifiant de l'utilisateur associé
+  user          user        @relation(fields: [userId], references: [id]) // Relation avec le modèle user
+  transporterId Int // Identifiant du transporteur associé
+  transporter   transporter @relation(fields: [transporterId], references: [id]) // Relation avec le modèle transporter
+}
+
+// Fin de la sélection
